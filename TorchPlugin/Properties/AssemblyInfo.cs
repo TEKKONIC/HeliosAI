@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PluginTemplate")]
+[assembly: AssemblyTitle("HeliosAi")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PluginTemplate")]
+[assembly: AssemblyProduct("HeliosAi")]
 [assembly: AssemblyCopyright("Copyright ©  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("C889318F-9835-4814-B26E-979242CAEB0C")]
+[assembly: Guid("79C370CF-21B3-4165-8F8D-7D41905412F6")]
 
 // Version information for an assembly consists of the following four values:
 //

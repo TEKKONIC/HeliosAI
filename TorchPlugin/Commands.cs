@@ -19,7 +19,7 @@ namespace TorchPlugin
         // TODO: Implement subcommands as needed
         private void RespondWithHelp()
         {
-            Respond("PluginTemplate commands:");
+            Respond("HeliosAi commands:");
             Respond("  !cmd help");
             Respond("  !cmd info");
             Respond("    Prints the current configuration settings.");
@@ -75,7 +75,7 @@ namespace TorchPlugin
 
         // ReSharper disable once UnusedMember.Global
 
-        [Command("cmd help", "PluginTemplate: Help")]
+        [Command("cmd help", "HeliosAi: Help")]
         [Permission(MyPromoteLevel.None)]
         public void Help()
         {
@@ -83,7 +83,7 @@ namespace TorchPlugin
         }
 
         // ReSharper disable once UnusedMember.Global
-        [Command("cmd info", "PluginTemplate: Prints the current settings")]
+        [Command("cmd info", "HeliosAi: Prints the current settings")]
         [Permission(MyPromoteLevel.None)]
         public void Info()
         {
@@ -91,7 +91,7 @@ namespace TorchPlugin
         }
 
         // ReSharper disable once UnusedMember.Global
-        [Command("cmd enable", "PluginTemplate: Enables the plugin")]
+        [Command("cmd enable", "HeliosAi: Enables the plugin")]
         [Permission(MyPromoteLevel.Admin)]
         public void Enable()
         {
@@ -100,7 +100,7 @@ namespace TorchPlugin
         }
 
         // ReSharper disable once UnusedMember.Global
-        [Command("cmd disable", "PluginTemplate: Disables the plugin")]
+        [Command("cmd disable", "HeliosAi: Disables the plugin")]
         [Permission(MyPromoteLevel.Admin)]
         public void Disable()
         {
@@ -110,7 +110,7 @@ namespace TorchPlugin
 
         // TODO: Subcommand
         // ReSharper disable once UnusedMember.Global
-        [Command("cmd subcmd", "PluginTemplate: TODO: Subcommand")]
+        [Command("cmd subcmd", "HeliosAi: TODO: Subcommand")]
         [Permission(MyPromoteLevel.Admin)]
         public void SubCmd(string name, string value)
         {

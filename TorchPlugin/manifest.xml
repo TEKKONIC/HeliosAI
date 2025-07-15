@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <PluginManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>PluginTemplate</Name>
-  <Guid>c889318f-9835-4814-b26e-979242caeb0c</Guid>
-  <Repository>PluginTemplate</Repository>
+  <Name>HeliosAi</Name>
+  <Guid>79c370cf-21b3-4165-8f8d-7d41905412f6</Guid>
+  <Repository>HeliosAi</Repository>
   <Version>v1.0.0</Version>
 </PluginManifest>
