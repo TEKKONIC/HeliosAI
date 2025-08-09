@@ -1,0 +1,13 @@
+{
+  "Id": "pirate_frigate_01",
+  "Prefab": "SPRT_Frigate",
+  "Faction": "SPRT",
+  "Behavior": "Defense",
+  "DefenseRadius": 1200,
+  "SpawnType": "Space",
+  "MinDistance": 4000,
+  "MaxDistance": 7000,
+  "Cooldown": 600,
+  "ZoneId": "AlphaZone",
+  "CustomAI": false
+}

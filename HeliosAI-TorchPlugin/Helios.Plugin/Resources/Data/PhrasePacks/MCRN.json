@@ -1,0 +1,25 @@
+{
+  "Nation": "MCRN",
+  "Phrases": {
+    "Warning": [
+      "This is the MCRN {ShipName}. You are entering restricted space. Divert your course immediately.",
+      "You are in violation of MCRN jurisdiction. Turn back or face consequences.",
+      "Final warning. MCRN {ShipName} will engage if proximity is maintained."
+    ],
+    "Reinforcement": [
+      "This is {ShipName}. Requesting immediate support in this sector.",
+      "MCRN forces under duress. Reinforcements needed at grid coordinates.",
+      "Command, hostile contact confirmed. Dispatch backup to my location."
+    ],
+    "Engaged": [
+      "Engaging enemy vessel. MCRN authority invoked.",
+      "Combat initiated. Target locked and tracked.",
+      "This is {ShipName}. We're firing on hostile craft now."
+    ],
+    "Death": [
+      "{ShipName} is breaking apart—May the Martian spirit endure.",
+      "We are hit! {ShipName} going down!",
+      "{ShipName} to command—Tell Mars we fought to the end!"
+    ]
+  }
+}

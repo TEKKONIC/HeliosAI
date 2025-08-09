@@ -1,0 +1,17 @@
+{
+  "ZoneId": "DeepSpaceZone01",
+  "DisplayName": "Deep Space Outpost",
+  "Active": true,
+  "Persistent": false,
+  "Center": { "X": -1520000, "Y": 800000, "Z": -290000 },
+  "Radius": 25000,
+  "NexusSectors": [],
+  "EncounterProfiles": [
+    "Outpost_Patrol",
+    "Outpost_MiningEscort",
+    "Pirate_WarpIn"
+  ],
+  "SpawnIntervalSeconds": 900,
+  "MaxSpawns": 2,
+  "NoSpawnZone": false
+}

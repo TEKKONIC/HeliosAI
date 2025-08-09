@@ -1,0 +1,17 @@
+{
+  "ZoneId": "FrontlineZone01",
+  "DisplayName": "Sector Conflict Zone",
+  "Active": true,
+  "Persistent": true,
+  "Center": { "X": 500000, "Y": 0, "Z": -500000 },
+  "Radius": 40000,
+  "NexusSectors": [ "sector_beta", "sector_gamma" ],
+  "EncounterProfiles": [
+    "Faction_A_HeavyFrigate",
+    "Faction_B_Destroyer",
+    "Neutral_ReinforcementDrone"
+  ],
+  "SpawnIntervalSeconds": 300,
+  "MaxSpawns": 5,
+  "NoSpawnZone": false
+}

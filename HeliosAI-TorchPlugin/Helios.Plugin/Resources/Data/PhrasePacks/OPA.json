@@ -1,0 +1,25 @@
+{
+  "Nation": "OPA",
+  "Phrases": {
+    "Warning": [
+      "You fly too close, bosmang. This place, it no for you.",
+      "Back off, beltalowda. We watch you from long time.",
+      "Next time you cross line, you get scrap. You hear?"
+    ],
+    "Reinforcement": [
+      "Need crew fast! Skinnies try fight us!",
+      "They bring war to OPA ship. Bring more beltalowda!",
+      "Dis not joke. Send backup now or we go poof!"
+    ],
+    "Engaged": [
+      "They fire first. Now we burn them!",
+      "We gonna take your ship, inners!",
+      "Let dem know how Belta fight!"
+    ],
+    "Death": [
+      "We spin no more, brata.",
+      "{ShipName} going dark... we die free!",
+      "Tell de Belt we fall proud, yah?"
+    ]
+  }
+}

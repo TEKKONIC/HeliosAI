@@ -1,0 +1,17 @@
+{
+  "ZoneId": "ScrapYardZone01",
+  "DisplayName": "Scrap Yard",
+  "Active": true,
+  "Persistent": true,
+  "Center": { "X": 2750000, "Y": 2435000, "Z": 130000 },
+  "Radius": 30000,
+  "NexusSectors": [ "sector_alpha" ],
+  "EncounterProfiles": [
+    "Raiders_Scout",
+    "Raiders_Transport",
+    "Defense_TurretGrid"
+  ],
+  "SpawnIntervalSeconds": 600,
+  "MaxSpawns": 3,
+  "NoSpawnZone": true
+}

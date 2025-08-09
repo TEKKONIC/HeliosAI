@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <RootNamespace>Helios.Plugin</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Helios.Core\Helios.Core.csproj" />
+        <ProjectReference Include="..\Helios.Modules.Encounters\Helios.Modules.Encounters.csproj" />
+        <ProjectReference Include="..\Helios.Modules.Zones\Helios.Modules.Zones.csproj" />
+        <ProjectReference Include="..\Helios.Modules.AI\Helios.Modules.AI.csproj" />
+        <ProjectReference Include="..\Helios.Modules.Nexus\Helios.Modules.Nexus.csproj" />
+    </ItemGroup>
+</Project>

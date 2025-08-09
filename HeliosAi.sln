@@ -1,10 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientPlugin", "ClientPlugin\ClientPlugin.csproj", "{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeliosAI-ClientPlugin", "HeliosAI-ClientPlugin\HeliosAI-ClientPlugin.csproj", "{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorchPlugin", "TorchPlugin\TorchPlugin.csproj", "{79C370CF-21B3-4165-8F8D-7D41905412F6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeliosAI-TorchPlugin", "HeliosAI-TorchPlugin\HeliosAI-TorchPlugin.csproj", "{79C370CF-21B3-4165-8F8D-7D41905412F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DedicatedPlugin", "DedicatedPlugin\DedicatedPlugin.csproj", "{68558AC7-04D3-4387-BE83-9D37770C1FBA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeliosAI-DedicatedPlugin", "HeliosAI-DedicatedPlugin\HeliosAI-DedicatedPlugin.csproj", "{68558AC7-04D3-4387-BE83-9D37770C1FBA}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{A5496438-2990-4581-B9DB-BA9B3440CEE6}"
 EndProject
@@ -23,21 +26,30 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{BFB8E9B5-8B04-4640-AB0A-F7DA8F36E48A}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{79C370CF-21B3-4165-8F8D-7D41905412F6}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{68558AC7-04D3-4387-BE83-9D37770C1FBA}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{68558ac7-04d3-4387-be83-9d37770c1fba}*SharedItemsImports = 4
+		Shared\Shared.projitems*{79c370cf-21b3-4165-8f8d-7d41905412f6}*SharedItemsImports = 4
+		Shared\Shared.projitems*{a5496438-2990-4581-b9db-ba9b3440cee6}*SharedItemsImports = 13
+		Shared\Shared.projitems*{bfb8e9b5-8b04-4640-ab0a-f7da8f36e48a}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

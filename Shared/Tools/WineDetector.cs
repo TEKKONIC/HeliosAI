@@ -19,7 +19,7 @@ namespace Shared.Tools
             try
             {
                 // Check if wine_get_version function exists
-                IntPtr wineVersion = WineGetVersion();
+                var wineVersion = WineGetVersion();
                 if (wineVersion != IntPtr.Zero)
                 {
                     // string version = Marshal.PtrToStringAnsi(wineVersion);
@@ -47,7 +47,7 @@ namespace Shared.Tools
             }
 
             // Check for Proton-specific environment variable
-            string steamRuntimePath = Environment.GetEnvironmentVariable("STEAM_RUNTIME");
+            var steamRuntimePath = Environment.GetEnvironmentVariable("STEAM_RUNTIME");
             if (!string.IsNullOrEmpty(steamRuntimePath) && steamRuntimePath.Contains("steamrt"))
             {
                 // Console.WriteLine("Running in Proton (detected via Steam Runtime)");

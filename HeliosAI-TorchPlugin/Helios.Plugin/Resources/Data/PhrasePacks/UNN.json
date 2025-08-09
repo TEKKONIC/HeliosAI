@@ -1,0 +1,25 @@
+{
+  "Nation": "UNN",
+  "Phrases": {
+    "Warning": [
+      "This is the UNN {ShipName}. Disengage course immediately.",
+      "You are entering protected territory. Final warning.",
+      "UNN protocol 14 in effect. Reverse course now."
+    ],
+    "Reinforcement": [
+      "UNN {ShipName} requesting backup. Hostiles identified.",
+      "We're taking fire—reinforcements required now.",
+      "Multiple targets. Immediate response needed at our coordinates."
+    ],
+    "Engaged": [
+      "Weapons live. Target engaged.",
+      "Opening fire on enemy ship.",
+      "{ShipName} engaging hostile under UNN authority."
+    ],
+    "Death": [
+      "UNN {ShipName} is lost. We served with honor.",
+      "They're breaking our hull—May Earth remember us.",
+      "{ShipName} signing off—hold the line!"
+    ]
+  }
+}

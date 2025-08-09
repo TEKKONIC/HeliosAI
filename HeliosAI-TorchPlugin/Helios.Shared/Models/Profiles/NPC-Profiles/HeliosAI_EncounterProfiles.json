@@ -1,0 +1,83 @@
+[
+    {
+        "Name": "PatrolDrone",
+        "Prefab": "Helios_PatrolDrone",
+        "Behavior": "patrol",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 0,
+        "Waypoints": [],
+        "Zone": "Any"
+    },
+    {
+        "Name": "StationDefender",
+        "Prefab": "Helios_StationDefender",
+        "Behavior": "defense",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 1500,
+        "Waypoints": [],
+        "Zone": "CoreSector"
+    },
+    {
+        "Name": "ScrapYardGuard",
+        "Prefab": "Helios_ScrapGuard",
+        "Behavior": "defense",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 1000,
+        "Waypoints": [],
+        "Zone": "ScrapYardZone"
+    },
+    {
+        "Name": "DeepSpaceRaider",
+        "Prefab": "Helios_DeepRaider",
+        "Behavior": "attack",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 0,
+        "Waypoints": [],
+        "Zone": "DeepSpace"
+    },
+    {
+        "Name": "AmbushInterceptor",
+        "Prefab": "Helios_Interceptor",
+        "Behavior": "attack",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 0,
+        "Waypoints": [],
+        "Zone": "TradeRoute"
+    },
+    {
+        "Name": "TradeConvoyEscort",
+        "Prefab": "Helios_ConvoyEscort",
+        "Behavior": "patrol",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 0,
+        "Waypoints": [],
+        "Zone": "TradeRoute"
+    },
+    {
+        "Name": "SiegeShip",
+        "Prefab": "Helios_SiegeShip",
+        "Behavior": "attack",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 0,
+        "Waypoints": [],
+        "Zone": "CoreSector"
+    },
+    {
+        "Name": "AlienScout",
+        "Prefab": "Helios_AlienScout",
+        "Behavior": "patrol",
+        "FactionTag": "ALNS",
+        "DefenseRadius": 0,
+        "Waypoints": [],
+        "Zone": "DeepSpace"
+    },
+    {
+        "Name": "ModularCarrier",
+        "Prefab": "Helios_ModularCarrier",
+        "Behavior": "defense",
+        "FactionTag": "SPRT",
+        "DefenseRadius": 2000,
+        "Waypoints": [],
+        "Zone": "CoreSector"
+    }
+]

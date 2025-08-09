@@ -22,7 +22,7 @@ namespace Shared.Config
 
         private void OnPropertyChanged([CallerMemberName] string propName = "")
         {
-            PropertyChangedEventHandler propertyChanged = PropertyChanged;
+            var propertyChanged = PropertyChanged;
             if (propertyChanged == null)
                 return;
 
@@ -33,7 +33,7 @@ namespace Shared.Config
         private bool detectCodeChanges = true;
         // TODO: Implement your config fields here
         // The default values here will apply to Client and Dedicated.
-        // The default values for Torch are defined in TorchPlugin.
+        // The default values for Torch are defined in HeliosAI-TorchPlugin.
 
         public bool Enabled
         {

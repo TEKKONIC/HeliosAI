@@ -1,0 +1,79 @@
+[
+    {
+        "ZoneName": "CoreSectorDefenseZone",
+        "PublicName": "Core Defense",
+        "Position": {
+            "X": 1500000,
+            "Y": 2000000,
+            "Z": 100000
+        },
+        "Radius": 25000,
+        "Persistent": true,
+        "Active": true,
+        "NexusSectors": [
+            "CoreSector"
+        ],
+        "Encounters": [
+            "StationDefender",
+            "TradeConvoy",
+            "ModularCarrier_Core"
+        ]
+    },
+    {
+        "ZoneName": "DeepSpaceRaidZone",
+        "PublicName": "Deep Space Raider Ambush",
+        "Position": {
+            "X": 5000000,
+            "Y": 3500000,
+            "Z": 250000
+        },
+        "Radius": 30000,
+        "Persistent": true,
+        "Active": true,
+        "NexusSectors": [
+            "DeepSpace"
+        ],
+        "Encounters": [
+            "DeepSpaceRaider",
+            "AmbushInterceptor",
+            "AlienScout"
+        ]
+    },
+    {
+        "ZoneName": "ScrapYardZone",
+        "PublicName": "Abandoned Scrap Yard",
+        "Position": {
+            "X": 2750000,
+            "Y": 2435000,
+            "Z": 130000
+        },
+        "Radius": 30000,
+        "Persistent": true,
+        "Active": true,
+        "Encounters": [
+            "ScrapYardGuard",
+            "SiegeShip"
+        ],
+        "NoSpawnZone": true
+    },
+    {
+        "ZoneName": "WartornFringe",
+        "PublicName": "Wartorn Fringe Zone",
+        "Position": {
+            "X": 6700000,
+            "Y": 1200000,
+            "Z": 180000
+        },
+        "Radius": 40000,
+        "Persistent": true,
+        "Active": true,
+        "NexusSectors": [
+            "OuterFringe"
+        ],
+        "Encounters": [
+            "SiegeShip",
+            "AlienScout",
+            "AmbushInterceptor"
+        ]
+    }
+]
