@@ -619,11 +619,19 @@
   <ItemGroup>
     <Compile Include="Helios.Core\Interfaces\IAiBehavior.cs" />
     <Compile Include="Helios.Core\Interfaces\IAiManager.cs" />
+    <Compile Include="Helios.Core\Interfaces\IAiPlugin.cs" />
+    <Compile Include="Helios.Core\Interfaces\ICustomGridManager.cs" />
     <Compile Include="Helios.Core\Interfaces\ILogger.cs" />
-    <Compile Include="Helios.Modules.AICommunication\AiCommunicationManager.cs" />
-    <Compile Include="Helios.Modules.AICommunication\ChatModule\NationBroadcastManager.cs" />
-    <Compile Include="Helios.Modules.AICommunication\ChatModule\NationMessageLibrary.cs" />
-    <Compile Include="Helios.Modules.AICommunication\ChatModule\NationType.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\AdaptiveBehaviorEngine.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\AiManager.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\AiUpdateScheduler.cs" />
+    <Compile Include="Helios.Modules.AI\AI.Communication\AiCommunicationManager.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\CustomGridManager.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\GridSpawner.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\NpcAgent.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\NpcEntity.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Control\PredictiveAnalyzer.cs" />
+    <Compile Include="Helios.Modules.AI\AI.Navigation\Navigation.cs" />
     <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiBase.cs" />
     <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiDefs.cs" />
     <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiPhantoms.cs" />
@@ -635,32 +643,29 @@
     <Compile Include="Helios.Core\Interfaces\IZoneManager.cs" />
     <Compile Include="Helios.Core\Models\EncounterProfile.cs" />
     <Compile Include="Helios.Core\Models\ZoneProfile.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\AiBehavior.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\AttackBehavior.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\DefenseBehavior.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\FollowBehavior.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\IdleBehaviors.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\PatrolBehavior.cs" />
-    <Compile Include="Helios.Modules.AI\Behaviors\RetreatBehavior.cs" />
-    <Compile Include="Helios.Modules.AI\AiManager.cs" />
-    <Compile Include="Helios.Modules.AI\NpcEntity.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\AiBehavior.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\AttackBehavior.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\DefenseBehavior.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\FollowBehavior.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\IdleBehaviors.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\PatrolBehavior.cs" />
+    <Compile Include="Helios.Modules.AI\Ai.Behaviors\RetreatBehavior.cs" />
     <Compile Include="Helios.Modules.Broadcasting\BroadcastManager.cs" />
+    <Compile Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\NationPhrasePack.cs" />
+    <Compile Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\NationPhrasePackLoader.cs" />
     <Compile Include="Helios.Modules.Encounters\EncounterManager.cs" />
-    <Compile Include="Helios.Modules.Encounters\GridSpawner.cs" />
+    <Compile Include="Helios.Modules.Nations\NationTypes.cs" />
     <Compile Include="Helios.Modules.Nations\NationHelper.cs" />
     <Compile Include="Helios.Modules.Nexus\NexusAwareZone.cs" />
     <Compile Include="Helios.Modules.Nexus\NexusZoneManager.cs" />
-    <Compile Include="Helios.Modules.Zones\ZoneDefinition.cs" />
     <Compile Include="Helios.Modules.Zones\ZoneManager.cs" />
     <Compile Include="Helios.Plugin.Logging\PluginLogger.cs" />
-    <Compile Include="Helios.Plugin\Commands\AiDebugCommands.cs" />
-    <Compile Include="Helios.Plugin\ConfigView.xaml.cs" />
-    <Compile Include="Helios.Plugin\HeliosAIPlugin.cs" />
-    <Compile Include="Helios.Plugin\Commands\AICommands.cs" />
-    <Compile Include="Helios.Plugin\Commands\Commands.cs" />
-    <Compile Include="Helios.Plugin\PluginLoader.cs" />
-    <Compile Include="Helios.Plugin\Resources\Data\PhrasePacks\NationPhrasePack.cs" />
-    <Compile Include="Helios.Plugin\Resources\Data\PhrasePacks\NationPhrasePackLoader.cs" />
+    <Compile Include="Helios.Plugin.Base\Commands\AiDebugCommands.cs" />
+    <Compile Include="Helios.Plugin.Base\ConfigView.xaml.cs" />
+    <Compile Include="Helios.Plugin.Base\HeliosAIPlugin.cs" />
+    <Compile Include="Helios.Plugin.Base\Commands\AICommands.cs" />
+    <Compile Include="Helios.Plugin.Base\Commands\Commands.cs" />
+    <Compile Include="Helios.Plugin.Base\PluginLoader.cs" />
     <Compile Include="Helios.Shared\Config\HeliosAIConfig.cs" />
     <Compile Include="Helios.Shared\Config\HeliosConfigDefinition.cs" />
     <Compile Include="Helios.Shared\Utilities\EntityUtils.cs" />
@@ -670,16 +675,24 @@
     <Compile Include="Helios.Modules.WeaponCore\WeaponCoreGridManager.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".github\workflows\ci.yml" />
     <Content Include="deploy.bat" />
+    <Content Include="docs\API\ai-system.md" />
+    <Content Include="docs\API\configuration.md" />
+    <Content Include="docs\API\plugin-development.md" />
+    <Content Include="docs\guides\installation.md" />
+    <Content Include="docs\guides\migration-from-mes.md" />
+    <Content Include="docs\guides\server-admin-guide.md" />
+    <Content Include="docs\README.md" />
     <Content Include="Helios.Core\HeliosCore.csproj" />
     <Content Include="Helios.Modules.AI\Helios.Modules.AI.csproj" />
+    <Content Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\MCRN.json" />
+    <Content Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\OPA.json" />
+    <Content Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\UNN.json" />
     <Content Include="Helios.Modules.Encounters\Helios.Modules.Encounters.csproj" />
     <Content Include="Helios.Modules.Nexus\Helios.Modules.Nexus.csproj" />
     <Content Include="Helios.Modules.Zones\Helios.Modules.Zones.csproj" />
-    <Content Include="Helios.Plugin\Helios.Plugin.csproj" />
-    <Content Include="Helios.Plugin\Resources\Data\PhrasePacks\MCRN.json" />
-    <Content Include="Helios.Plugin\Resources\Data\PhrasePacks\OPA.json" />
-    <Content Include="Helios.Plugin\Resources\Data\PhrasePacks\UNN.json" />
+    <Content Include="Helios.Plugin.Base\Helios.Plugin.csproj" />
     <Content Include="Helios.Shared\Models\Profiles\NPC-Profiles\Examples\pirate_frigate_01.json" />
     <Content Include="Helios.Shared\Models\Profiles\NPC-Profiles\HeliosAI_EncounterProfiles.json" />
     <Content Include="Helios.Shared\Models\Profiles\Zone-Profiles\examples\DeepSpaceZone01.json" />
@@ -713,9 +726,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="docs\examples\advanced-integration\" />
+    <Folder Include="docs\examples\basic-plugin\" />
+    <Folder Include="docs\examples\custom-behavior\" />
+    <Folder Include="docs\examples\enterprise-deployment\" />
+    <Folder Include="docs\examples\performance-optimization\" />
+    <Folder Include="Helios.Core\Monitoring\" />
+    <Folder Include="Helios.Performance\" />
+    <Folder Include="Helios.Plugin.Base\Resources\Data\" />
     <Folder Include="Helios.Shared\Models\" />
+    <Folder Include="Helios.Tests\" />
+    <Folder Include="scripts\" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Helios.Plugin\ConfigView.xaml" />
+    <Page Include="Helios.Plugin.Base\ConfigView.xaml" />
   </ItemGroup>
 </Project>

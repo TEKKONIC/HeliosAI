@@ -4,10 +4,14 @@ using System.IO;
 using System.Threading.Tasks;
 using Helios.Core.Interfaces;
 using Helios.Modules.Encounters;
+using Helios.Modules.AI.Behaviors;
+using Helios.Modules.AI.Combat;
 using NLog;
 using Torch.API;
 using VRage.Utils;
 using VRageMath;
+using VRage.Game.ModAPI;
+using VRage.ModAPI;
 
 namespace HeliosAI.NPCZones
 {
@@ -18,6 +22,8 @@ namespace HeliosAI.NPCZones
         public static string ZonesFolder { get; private set; }
         public static string EncountersFolder { get; private set; }
         private static readonly Logger Logger = LogManager.GetLogger("ZoneManager");
+        private AdaptiveBehaviorEngine _behaviorEngine = new AdaptiveBehaviorEngine();
+        private PredictiveAnalyzer _predictiveAnalyzer = new PredictiveAnalyzer();
         
         public bool IsInitialized { get; private set; }
 
@@ -42,7 +48,6 @@ namespace HeliosAI.NPCZones
 
         public async Task LoadZonesAsync(string path)
         {
-            // Load all JSON zone profiles from disk
             Logger.Info($"[ZoneManager] Loading zones from: {path}");
             await Task.CompletedTask; // Placeholder for actual async loading logic
         }
@@ -67,8 +72,209 @@ namespace HeliosAI.NPCZones
                     GridSpawner.SpawnWithBehavior(profile, pos);
                     zone.MarkSpawned();
                 }
+                
+                UpdateZoneAI(zone);
             }
         }
+
+        public void UpdateZoneAI(ZoneProfile zone)
+        {
+            try
+            {
+                var entitiesInZone = GetEntitiesInZone(zone);
+                foreach (var entity in entitiesInZone)
+                {
+                    if (IsAIEntity(entity))
+                    {
+                        UpdateEntityAI(entity, zone);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error updating AI for zone {zone.ZoneId}");
+            }
+        }
+
+        private List<IMyEntity> GetEntitiesInZone(ZoneProfile zone)
+        {
+            var entitiesInZone = new List<IMyEntity>();
+            
+            try
+            {
+                // TODO: Implement actual entity detection within zone bounds
+                // This would typically use MyAPIGateway.Entities to find entities
+                // within the zone's sphere (Center + Radius)
+                
+                /*
+                var entities = new HashSet<IMyEntity>();
+                MyAPIGateway.Entities.GetEntitiesInSphere(ref zone.Center, zone.Radius, entities);
+                
+                foreach (var entity in entities)
+                {
+                    if (entity is IMyCubeGrid grid && !grid.MarkedForClose)
+                    {
+                        entitiesInZone.Add(entity);
+                    }
+                }
+                */
+                
+                Logger.Debug($"Found {entitiesInZone.Count} entities in zone {zone.ZoneId}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error getting entities in zone {zone.ZoneId}");
+            }
+            
+            return entitiesInZone;
+        }
+
+        private bool IsAIEntity(IMyEntity entity)
+        {
+            try
+            {
+                if (entity is IMyCubeGrid grid)
+                {
+                    // TODO: Implement logic to determine if grid is AI-controlled
+                    // This could check for specific tags, ownership, or registry with AI system
+                    
+                    // For now, assume all non-player grids are AI entities
+                    return !IsPlayerControlled(grid);
+                }
+                
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error checking if entity {entity?.EntityId} is AI");
+                return false;
+            }
+        }
+
+        private bool IsPlayerControlled(IMyCubeGrid grid)
+        {
+            try
+            {
+                // TODO: Implement actual player ownership check
+                // This would typically check grid ownership and faction data
+                
+                /*
+                var blocks = new List<IMySlimBlock>();
+                grid.GetBlocks(blocks);
+                
+                foreach (var block in blocks)
+                {
+                    if (block.CubeGrid.GetCubeBlock(block.Position) is IMyTerminalBlock terminal)
+                    {
+                        if (terminal.OwnerId != 0)
+                        {
+                            // Check if owner is a player
+                            var player = MyAPIGateway.Players.GetPlayerByID(terminal.OwnerId);
+                            if (player != null)
+                                return true;
+                        }
+                    }
+                }
+                */
+                
+                return false; // Default to AI-controlled for now
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error checking player control for grid {grid?.EntityId}");
+                return false;
+            }
+        }
+
+        private void UpdateEntityAI(IMyEntity entity, ZoneProfile zone)
+        {
+            try
+            {
+                if (entity is IMyCubeGrid grid)
+                {
+                    _predictiveAnalyzer.UpdateMovementHistory(entity);
+                    var context = GatherZoneAIContext(grid, zone);
+                    var availableBehaviors = GetZoneBehaviors(zone);
+                    var selectedBehavior = _behaviorEngine.SelectOptimalBehavior(
+                        entity.EntityId, context, availableBehaviors);
+                    
+                    if (!string.IsNullOrEmpty(selectedBehavior))
+                    {
+                        var success = ExecuteZoneBehavior(grid, selectedBehavior, zone);
+                        _behaviorEngine.ReportBehaviorOutcome(
+                            entity.EntityId, selectedBehavior, success, context);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error updating AI for entity {entity?.EntityId} in zone {zone.ZoneId}");
+            }
+        }
+
+        private Dictionary<string, float> GatherZoneAIContext(IMyCubeGrid grid, ZoneProfile zone)
+        {
+            var context = new Dictionary<string, float>();
+            
+            try
+            {
+                var gridPosition = grid.PositionComp.GetPosition();
+                var distanceFromCenter = Vector3D.Distance(gridPosition, zone.Center);
+                
+                context["DistanceFromZoneCenter"] = (float)(distanceFromCenter / zone.Radius);
+                context["ZoneRadius"] = (float)zone.Radius;
+                context["IsNearZoneEdge"] = distanceFromCenter > zone.Radius * 0.8f ? 1.0f : 0.0f;
+                context["ZoneType"] = zone.NoSpawnZone ? 0.0f : 1.0f; // 0 = safe zone, 1 = active zone
+                context["MaxSpawnsReached"] = zone.MaxSpawns > 0 ? 1.0f : 0.0f;
+                context["HealthPercentage"] = GetGridHealth(grid);
+                context["PowerLevel"] = GetGridPower(grid);
+                context["NearbyEntities"] = GetNearbyEntityCount(grid);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error gathering zone AI context for grid {grid?.EntityId}");
+            }
+            
+            return context;
+        }
+
+        private List<string> GetZoneBehaviors(ZoneProfile zone)
+        {
+            var behaviors = new List<string>();
+            
+            if (zone.NoSpawnZone)
+            {
+                behaviors.AddRange(new[] { "Patrol_Safe", "Escort_Civilian", "Trade_Safe" });
+            }
+            else
+            {
+                behaviors.AddRange(new[] { "Patrol_Combat", "Hunt_Aggressive", "Defend_Zone" });
+            }
+            
+            return behaviors;
+        }
+
+        private bool ExecuteZoneBehavior(IMyCubeGrid grid, string behavior, ZoneProfile zone)
+        {
+            try
+            {
+                Logger.Debug($"Executing zone behavior {behavior} for grid {grid.EntityId} in zone {zone.ZoneId}");
+                
+                // TODO: Implement actual zone behavior execution
+                // This would integrate with your ship control and navigation systems
+                
+                return true; // Placeholder
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error executing zone behavior {behavior} for grid {grid?.EntityId}");
+                return false;
+            }
+        }
+
+        private float GetGridHealth(IMyCubeGrid grid) { return 1.0f; } // TODO: Implement
+        private float GetGridPower(IMyCubeGrid grid) { return 1.0f; } // TODO: Implement
+        private float GetNearbyEntityCount(IMyCubeGrid grid) { return 0f; } // TODO: Implement
 
         public void Shutdown()
         {

@@ -87,7 +87,6 @@ namespace HeliosAI.Nexus
 
             try
             {
-                // Check cache first
                 if (_sectorZoneCache.TryGetValue(sectorName, out var cachedZone) && 
                     DateTime.UtcNow - _lastCacheUpdate < _cacheExpiry)
                 {
@@ -102,7 +101,6 @@ namespace HeliosAI.Nexus
                     _ => NexusZone.Default
                 };
 
-                // Update cache
                 _sectorZoneCache[sectorName] = zone;
                 _lastCacheUpdate = DateTime.UtcNow;
 

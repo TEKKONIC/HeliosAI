@@ -5,10 +5,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using HeliosAI.Models;
 using Helios.Core.Interfaces;
+using Helios.Modules.AI.Behaviors;
+using Helios.Modules.AI.Combat;
 using VRageMath;
 using NLog;
 using Torch.API;
 using Newtonsoft.Json;
+using VRage.Game.ModAPI;
 
 namespace Helios.Modules.Encounters
 {
@@ -22,6 +25,8 @@ namespace Helios.Modules.Encounters
         private readonly Random _random = new Random();
         private ITorchBase _torch;
         private string _encounterDirectory;
+        private AdaptiveBehaviorEngine _behaviorEngine = new AdaptiveBehaviorEngine();
+        private PredictiveAnalyzer _predictiveAnalyzer = new PredictiveAnalyzer();
 
         #region Properties
 
@@ -38,16 +43,10 @@ namespace Helios.Modules.Encounters
             try
             {
                 _torch = torch ?? throw new ArgumentNullException(nameof(torch));
-        
-                // Fix: Use Config.InstancePath instead of InstancePath
                 _encounterDirectory = Path.Combine(_torch.Config.InstancePath, "HeliosAI", "Encounters");
-        
-                // Create directory if it doesn't exist
                 Directory.CreateDirectory(_encounterDirectory);
         
                 Logger.Info($"EncounterManager initialized with directory: {_encounterDirectory}");
-        
-                // Load profiles on initialization
                 LoadProfiles();
             }
             catch (Exception ex)
@@ -62,7 +61,6 @@ namespace Helios.Modules.Encounters
         {
             try
             {
-                // Use provided directory or fall back to initialized directory
                 var targetDirectory = directory;
                 if (directory == "Instance/HeliosAI/Encounters" && !string.IsNullOrEmpty(_encounterDirectory))
                 {
@@ -70,7 +68,6 @@ namespace Helios.Modules.Encounters
                 }
                 else if (_torch != null)
                 {
-                    // Fix: Use Config.InstancePath instead of InstancePath
                     targetDirectory = Path.Combine(_torch.Config.InstancePath, directory.Replace("Instance/", ""));
                 }
 
@@ -120,7 +117,7 @@ namespace Helios.Modules.Encounters
         {
             try
             {
-                LoadProfiles(); // Call LoadProfiles method
+                LoadProfiles();
                 Logger.Info($"Reloaded {Profiles.Count} encounter profiles");
             }
             catch (Exception ex)
@@ -191,7 +188,7 @@ namespace Helios.Modules.Encounters
 
         #endregion
 
-        #region Spawn Management
+         #region Spawn Management
 
         public Vector3D GetSpawnPosition(Vector3D origin, double minDistance, double maxDistance, bool avoidPlayers = true, bool avoidGrids = true)
         {
@@ -201,7 +198,6 @@ namespace Helios.Modules.Encounters
         
                 for (var i = 0; i < maxAttempts; i++)
                 {
-                    // Generate random direction manually
                     var direction = CreateRandomDirection();
                     var distance = minDistance + _random.NextDouble() * (maxDistance - minDistance);
                     var position = origin + direction * distance;
@@ -212,7 +208,6 @@ namespace Helios.Modules.Encounters
                     }
                 }
         
-                // Fallback: return position at max distance
                 var fallbackDirection = CreateRandomDirection();
                 return origin + fallbackDirection * maxDistance;
             }
@@ -243,11 +238,9 @@ namespace Helios.Modules.Encounters
         {
             try
             {
-                // Generate random spherical coordinates
                 var theta = _random.NextDouble() * 2.0 * Math.PI; // Azimuth angle (0 to 2π)
                 var phi = Math.Acos(2.0 * _random.NextDouble() - 1.0); // Polar angle (0 to π)
         
-                // Convert to Cartesian coordinates
                 var x = Math.Sin(phi) * Math.Cos(theta);
                 var y = Math.Sin(phi) * Math.Sin(theta);
                 var z = Math.Cos(phi);
@@ -257,7 +250,7 @@ namespace Helios.Modules.Encounters
             catch (Exception ex)
             {
                 Logger.Error(ex, "Error creating random direction");
-                return Vector3D.Forward; // Fallback direction
+                return Vector3D.Forward; 
             }
         }
 
@@ -290,10 +283,20 @@ namespace Helios.Modules.Encounters
 
                 // TODO: Spawn the actual entities based on profile
                 // This would involve calling prefab spawning logic
-                
+                var spawnedGrids = SpawnPrefabEntities(profile, position);
+        
                 _activeEncounters.Add(encounter);
                 Logger.Info($"Spawned encounter {profileId} at {position}");
-                
+        
+                if (spawnedGrids != null && spawnedGrids.Any())
+                {
+                    foreach (var spawnedGrid in spawnedGrids)
+                    {
+                        RegisterWithAI(spawnedGrid, profile.EncounterType.ToString());
+                        encounter.SpawnedEntityIds.Add(spawnedGrid.EntityId);
+                    }
+                }
+        
                 return encounter;
             }
             catch (Exception ex)
@@ -303,33 +306,72 @@ namespace Helios.Modules.Encounters
             }
         }
 
-        public ActiveEncounter SpawnRandomEncounter(long playerId, EncounterDifficulty difficulty = EncounterDifficulty.Medium, EncounterType encounterType = EncounterType.Patrol)
+        private List<IMyCubeGrid> SpawnPrefabEntities(EncounterProfile profile, Vector3D position)
         {
             try
             {
-                if (!CanSpawnForPlayer(playerId))
-                {
-                    Logger.Debug($"Encounters disabled for player {playerId}");
-                    return null;
-                }
-
-                var profile = GetRandomProfile(difficulty, encounterType);
-                if (profile == null)
-                {
-                    Logger.Warn($"No encounter profiles found for {difficulty} {encounterType}");
-                    return null;
-                }
-
-                // TODO: Get player position
-                var playerPosition = Vector3D.Zero; // Replace with actual player position lookup
-                var spawnPosition = GetSpawnPosition(playerPosition, 2000, 5000);
-                
-                return SpawnEncounter(profile.Id, spawnPosition, playerId);
+                var spawnedGrids = new List<IMyCubeGrid>();
+        
+                // TODO: Implement actual prefab spawning logic here
+                // This is where you would integrate with your existing spawn system
+                // Example:
+                // var grid = SpawnPrefab(profile.PrefabName, position);
+                // if (grid != null)
+                //     spawnedGrids.Add(grid);
+        
+                Logger.Debug($"Spawning prefab: {profile.PrefabName} at {position}");
+        
+                return spawnedGrids;
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "Error spawning random encounter");
-                return null;
+                Logger.Error(ex, $"Error spawning prefab entities for profile: {profile.Id}");
+                return new List<IMyCubeGrid>();
+            }
+        }
+
+        private void RegisterWithAI(IMyCubeGrid grid, string encounterType)
+        {
+            try
+            {
+                if (grid == null)
+                {
+                    Logger.Warn("Attempted to register null grid with AI");
+                    return;
+                }
+
+                var personality = GetPersonalityFromEncounter(encounterType);
+                _behaviorEngine.RegisterBehavior($"{personality}_Combat", 0.7f);
+                _behaviorEngine.RegisterBehavior($"{personality}_Patrol", 0.6f);
+                _behaviorEngine.RegisterBehavior($"{personality}_Retreat", 0.4f);
+                _behaviorEngine.RegisterBehavior($"{personality}_Escort", 0.5f);
+        
+                Logger.Debug($"Registered grid {grid.EntityId} with AI personality: {personality}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error registering grid {grid?.EntityId} with AI");
+            }
+        }
+
+        private string GetPersonalityFromEncounter(string encounterType)
+        {
+            try
+            {
+                return encounterType?.ToLower() switch
+                {
+                    "pirate" => "Aggressive",
+                    "patrol" => "Defensive", 
+                    "defensive" => "Guardian",
+                    "trader" => "Peaceful",
+                    "military" => "Tactical",
+                    _ => "Neutral"
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error determining personality for encounter type: {encounterType}");
+                return "Neutral";
             }
         }
 
@@ -347,15 +389,13 @@ namespace Helios.Modules.Encounters
                     {
                         encounter.LastUpdate = DateTime.UtcNow;
                         
-                        // Check if encounter should expire
                         if (encounter.IsExpired(TimeSpan.FromMinutes(30))) // 30 min default
                         {
                             encounter.Status = EncounterStatus.Expired;
                             encounter.StatusReason = "Timeout";
                         }
                         
-                        // TODO: Update encounter logic based on spawned entities
-                        // Check if entities still exist, update behaviors, etc.
+                        UpdateEncounterAI(encounter);
                     }
                     catch (Exception ex)
                     {
@@ -487,12 +527,12 @@ namespace Helios.Modules.Encounters
         {
             try
             {
-                return _playerEncounterSettings.GetValueOrDefault(playerId, true);
+                return !_playerEncounterSettings.TryGetValue(playerId, out var value) || value;
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, $"Error checking spawn permission for player {playerId}");
-                return true; // Default to enabled
+                return true;
             }
         }
 
@@ -572,6 +612,376 @@ namespace Helios.Modules.Encounters
             catch (Exception ex)
             {
                 Logger.Error(ex, "Error creating default encounter profiles");
+            }
+        }
+
+        private float GetGridHealth(IMyCubeGrid grid) 
+        { 
+            try
+            {
+                // TODO: Implement actual health calculation
+                // Calculate percentage of functional blocks vs total blocks
+                return 1.0f; 
+            }
+            catch
+            {
+                return 1.0f;
+            }
+        }
+
+        private float GetGridPower(IMyCubeGrid grid) 
+        { 
+            try
+            {
+                // TODO: Implement actual power calculation
+                // Check reactor/battery power levels
+                return 1.0f; 
+            }
+            catch
+            {
+                return 1.0f;
+            }
+        }
+
+        private float GetNearbyEnemyCount(IMyCubeGrid grid) 
+        { 
+            try
+            {
+                // TODO: Implement enemy detection within range
+                return 0f; 
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
+
+        private float GetNearbyAllyCount(IMyCubeGrid grid) 
+        { 
+            try
+            {
+                // TODO: Implement ally detection within range
+                return 1f; 
+            }
+            catch
+            {
+                return 1f;
+            }
+        }
+
+        private float GetDistanceToNearestTarget(IMyCubeGrid grid) 
+        { 
+            try
+            {
+                // TODO: Implement target detection and distance calculation
+                return 1000f; 
+            }
+            catch
+            {
+                return 1000f;
+            }
+        }
+
+        private float CalculateThreatLevel(IMyCubeGrid grid) 
+        { 
+            try
+            {
+                // TODO: Implement threat assessment based on nearby entities
+                return 0.5f; 
+            }
+            catch
+            {
+                return 0.5f;
+            }
+        }
+
+        #endregion
+
+        #region Spawn Management
+
+        public ActiveEncounter SpawnRandomEncounter(long playerId, EncounterDifficulty difficulty = EncounterDifficulty.Easy, EncounterType encounterType = EncounterType.Patrol)
+        {
+            try
+            {
+                // Check if player can have encounters spawned
+                if (!CanSpawnForPlayer(playerId))
+                {
+                    Logger.Debug($"Encounters disabled for player {playerId}");
+                    return null;
+                }
+
+                var profile = GetRandomProfile(difficulty, encounterType);
+                if (profile == null)
+                {
+                    Logger.Warn($"No encounter profiles found for difficulty {difficulty} and type {encounterType}");
+                    return null;
+                }
+
+                var playerPosition = GetPlayerPosition(playerId);
+                if (playerPosition == null)
+                {
+                    Logger.Warn($"Could not get position for player {playerId}");
+                    return null;
+                }
+
+                var spawnPosition = GetSpawnPosition(
+                    playerPosition.Value, 
+                    profile.RequiredPlayerDistance, 
+                    profile.RequiredPlayerDistance + 5000,
+                    avoidPlayers: true,
+                    avoidGrids: true
+                );
+
+                var encounter = SpawnEncounter(profile.Id, spawnPosition, playerId);
+        
+                if (encounter != null)
+                {
+                    Logger.Info($"Spawned random encounter {profile.Id} for player {playerId} at {spawnPosition}");
+                }
+
+                return encounter;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error spawning random encounter for player {playerId}");
+                return null;
+            }
+        }
+
+        private Vector3D? GetPlayerPosition(long playerId)
+        {
+            try
+            {
+                // TODO: Implement actual player position lookup
+                // This would typically involve querying the game API for player entities
+                // Example:
+                // var player = MyAPIGateway.Players.GetPlayerById(playerId);
+                // if (player?.Character != null)
+                //     return player.Character.PositionComp.GetPosition();
+        
+                // For now, return a placeholder position
+                Logger.Debug($"Getting position for player {playerId} - placeholder implementation");
+                return Vector3D.Zero; // Replace with actual implementation
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error getting position for player {playerId}");
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region AI Integration Methods
+
+        private void UpdateEncounterAI(ActiveEncounter encounter)
+        {
+            try
+            {
+                // Get spawned entities for this encounter
+                var encounterGrids = GetEncounterGrids(encounter);
+                
+                foreach (var grid in encounterGrids)
+                {
+                    if (grid?.Physics != null)
+                    {
+                        _predictiveAnalyzer.UpdateMovementHistory(grid);
+                        var context = GatherAIContext(grid, encounter);
+                        var availableBehaviors = GetAvailableBehaviors(encounter);
+                        var selectedBehavior = _behaviorEngine.SelectOptimalBehavior(
+                            grid.EntityId, context, availableBehaviors);
+                        
+                        if (!string.IsNullOrEmpty(selectedBehavior))
+                        {
+                            var success = ExecuteAIBehavior(grid, selectedBehavior, context);
+                            _behaviorEngine.ReportBehaviorOutcome(
+                                grid.EntityId, selectedBehavior, success, context);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error updating AI for encounter {encounter.Id}");
+            }
+        }
+
+        private List<IMyCubeGrid> GetEncounterGrids(ActiveEncounter encounter)
+        {
+            try
+            {
+                var grids = new List<IMyCubeGrid>();
+        
+                // TODO: Get actual grids from SpawnedEntityIds
+                // This would query the game world for entities with matching IDs
+                foreach (var entityId in encounter.SpawnedEntityIds)
+                {
+                    // Example implementation when you have access to game API:
+                    // var entity = MyAPIGateway.Entities.GetEntityById(entityId);
+                    // if (entity is IMyCubeGrid grid && !grid.MarkedForClose)
+                    //     grids.Add(grid);
+                }
+        
+                return grids;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error getting grids for encounter {encounter.Id}");
+                return new List<IMyCubeGrid>();
+            }
+        }
+
+        private Dictionary<string, float> GatherAIContext(IMyCubeGrid grid, ActiveEncounter encounter)
+        {
+            try
+            {
+                return new Dictionary<string, float>
+                {
+                    ["HealthPercentage"] = GetGridHealth(grid),
+                    ["PowerLevel"] = GetGridPower(grid),
+                    ["EnemyCount"] = GetNearbyEnemyCount(grid),
+                    ["AllyCount"] = GetNearbyAllyCount(grid),
+                    ["DistanceToTarget"] = GetDistanceToNearestTarget(grid),
+                    ["ThreatLevel"] = CalculateThreatLevel(grid),
+                    ["EncounterAge"] = (float)encounter.Age.TotalMinutes
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error gathering AI context for grid {grid?.EntityId}");
+                return new Dictionary<string, float>();
+            }
+        }
+
+        private List<string> GetAvailableBehaviors(ActiveEncounter encounter)
+        {
+            try
+            {
+                var profile = GetProfile(encounter.ProfileId);
+                var personality = GetPersonalityFromEncounter(profile?.EncounterType.ToString() ?? "Neutral");
+        
+                return new List<string>
+                {
+                    $"{personality}_Combat",
+                    $"{personality}_Patrol", 
+                    $"{personality}_Retreat",
+                    $"{personality}_Escort"
+                };
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error getting available behaviors for encounter {encounter.Id}");
+                return new List<string> { "Neutral_Patrol" };
+            }
+        }
+
+        private bool ExecuteAIBehavior(IMyCubeGrid grid, string behavior, Dictionary<string, float> context)
+        {
+            try
+            {
+                // TODO: Implement actual behavior execution
+                // This would integrate with your existing ship control systems
+                Logger.Debug($"Executing behavior {behavior} for grid {grid.EntityId}");
+        
+                // Placeholder behavior execution - implement based on your needs
+                var behaviorParts = behavior.Split('_');
+                if (behaviorParts.Length >= 2)
+                {
+                    var behaviorType = behaviorParts[1].ToLower();
+                    switch (behaviorType)
+                    {
+                        case "combat":
+                            return ExecuteCombatBehavior(grid, context);
+                        case "patrol":
+                            return ExecutePatrolBehavior(grid, context);
+                        case "retreat":
+                            return ExecuteRetreatBehavior(grid, context);
+                        case "escort":
+                            return ExecuteEscortBehavior(grid, context);
+                        default:
+                            Logger.Debug($"Unknown behavior type: {behaviorType}");
+                            return false;
+                    }
+                }
+        
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error executing behavior {behavior} for grid {grid?.EntityId}");
+                return false;
+            }
+        }
+
+        private bool ExecuteCombatBehavior(IMyCubeGrid grid, Dictionary<string, float> context) 
+        { 
+            try
+            {
+                // TODO: Implement combat behavior
+                // - Find nearest enemy
+                // - Use predictive analyzer for weapon selection
+                // - Engage target with optimal tactics
+                Logger.Debug($"Executing combat behavior for grid {grid.EntityId}");
+                return true; 
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error executing combat behavior for grid {grid?.EntityId}");
+                return false;
+            }
+        }
+
+        private bool ExecutePatrolBehavior(IMyCubeGrid grid, Dictionary<string, float> context) 
+        { 
+            try
+            {
+                // TODO: Implement patrol behavior
+                // - Follow predefined waypoints
+                // - Scan for threats
+                // - Maintain formation if part of group
+                Logger.Debug($"Executing patrol behavior for grid {grid.EntityId}");
+                return true; 
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error executing patrol behavior for grid {grid?.EntityId}");
+                return false;
+            }
+        }
+
+        private bool ExecuteRetreatBehavior(IMyCubeGrid grid, Dictionary<string, float> context) 
+        { 
+            try
+            {
+                // TODO: Implement retreat behavior
+                // - Move away from threats
+                // - Attempt to escape to safe distance
+                // - Call for reinforcements if available
+                Logger.Debug($"Executing retreat behavior for grid {grid.EntityId}");
+                return true; 
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error executing retreat behavior for grid {grid?.EntityId}");
+                return false;
+            }
+        }
+
+        private bool ExecuteEscortBehavior(IMyCubeGrid grid, Dictionary<string, float> context) 
+        { 
+            try
+            {
+                // TODO: Implement escort behavior
+                // - Stay near protected target
+                // - Intercept threats to target
+                // - Maintain escort formation
+                Logger.Debug($"Executing escort behavior for grid {grid.EntityId}");
+                return true; 
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, $"Error executing escort behavior for grid {grid?.EntityId}");
+                return false;
             }
         }
 

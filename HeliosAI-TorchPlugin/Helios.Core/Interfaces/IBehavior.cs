@@ -72,7 +72,7 @@ namespace Helios.Core.Interfaces
         /// Handle a backup request from another agent
         /// </summary>
         /// <param name="location">Location where backup is needed</param>
-        void ReceiveBackupRequest(Vector3D location);
+        void ReceiveBackupRequest(Vector3D location, string message);
 
         /// <summary>
         /// Select the best target from a list of enemies
@@ -175,6 +175,7 @@ namespace Helios.Core.Interfaces
     public class BehaviorContext
     {
         public Vector3D Position { get; set; }
+        public string message { get; set; } = string.Empty;
         public List<EnemyEntity> NearbyEnemies { get; set; } = new List<EnemyEntity>();
         public List<NpcEntity> NearbyAllies { get; set; } = new List<NpcEntity>();
         public float GridIntegrity { get; set; }

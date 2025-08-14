@@ -185,14 +185,12 @@ namespace HeliosAI.Utilities
 
             try
             {
-                // Check if character has a weapon equipped
                 var weaponDefinition = character.EquippedTool;
                 if (weaponDefinition == null)
                     return false;
 
                 var weaponName = weaponDefinition.ToString().ToLowerInvariant();
                 
-                // Check for common weapon types
                 var weaponKeywords = new[] { "rifle", "pistol", "launcher", "welder", "grinder", "drill" };
                 var isArmed = weaponKeywords.Any(keyword => weaponName.Contains(keyword));
 
@@ -202,7 +200,7 @@ namespace HeliosAI.Utilities
             catch (Exception ex)
             {
                 Logger.Error(ex, $"Failed to check armed status for character: {character?.DisplayName}");
-                return false; // Default to not armed if we can't determine
+                return false; 
             }
         }
 
@@ -265,7 +263,7 @@ namespace HeliosAI.Utilities
             catch (Exception ex)
             {
                 Logger.Error(ex, $"Failed to check position safety at {position}");
-                return false; // Default to not safe if we can't determine
+                return false; 
             }
         }
 
@@ -312,7 +310,6 @@ namespace HeliosAI.Utilities
                 if (ownFaction == null)
                     return true;
 
-                // Check faction relations
                 var relation = MyAPIGateway.Session.Factions.GetRelationBetweenFactions(ownFactionId, gridFaction.FactionId);
                 return relation == VRage.Game.MyRelationsBetweenFactions.Enemies;
             }

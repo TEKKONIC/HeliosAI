@@ -1674,7 +1674,9 @@ namespace Helios.Plugin.Logging
 
         public string Name { get; }
         public LogFactory Factory { get; }
+#pragma warning disable CS0067
         public event EventHandler<EventArgs> LoggerReconfigured;
+#pragma warning restore CS0067
         public void Swallow(Action action)
         {
             throw new NotImplementedException();

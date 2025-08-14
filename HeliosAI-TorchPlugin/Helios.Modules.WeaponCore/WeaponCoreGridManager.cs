@@ -61,7 +61,6 @@ namespace HeliosAI
                         {
                             weapons.Add(fat);
                         }
-                        // Fallback for vanilla weapons or custom detection
                         else if (fat.BlockDefinition.ToString().Contains("Weapon") || 
                                 fat.CustomName.Contains("[WC]"))
                         {
@@ -224,7 +223,6 @@ namespace HeliosAI
                     .Where(c => c != null && !c.MarkedForClose)
                     .Where(c => Vector3D.DistanceSquared(origin, c.GetPosition()) <= range * range);
 
-                // If faction-based targeting is needed
                 if (ownFactionId != 0)
                 {
                     validTargets = validTargets.Where(c => 
@@ -237,7 +235,7 @@ namespace HeliosAI
                         catch (Exception ex)
                         {
                             Logger.Error(ex, $"Failed to check faction for character: {c.DisplayName}");
-                            return true; // Include target if faction check fails
+                            return true; 
                         }
                     });
                 }

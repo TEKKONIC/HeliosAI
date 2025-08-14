@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using VRage.Game.ModAPI;
 using VRageMath;
 using HeliosAI.Behaviors;
@@ -14,7 +16,7 @@ namespace Helios.Core.Interfaces
         /// </summary>
         /// <param name="grid">Grid to register</param>
         /// <param name="initialBehavior">Optional initial behavior</param>
-        void RegisterGrid(IMyCubeGrid grid, AiBehavior? initialBehavior = null);
+        void RegisterGrid(IMyCubeGrid grid, AiBehavior initialBehavior = null);
 
         /// <summary>
         /// Unregister a grid from AI management
@@ -32,7 +34,12 @@ namespace Helios.Core.Interfaces
         /// </summary>
         /// <param name="grid">Grid to check</param>
         /// <returns>Current behavior or null if not registered</returns>
-        AiBehavior? GetBehavior(IMyCubeGrid grid);
+        AiBehavior GetBehavior(IMyCubeGrid grid);
+
+        /// <summary>
+        /// Gets all currently active NPCs (read-only)
+        /// </summary>
+        IReadOnlyList<NpcEntity> ActiveNpcs { get; }
 
         /// <summary>
         /// Set the behavior of a registered grid
@@ -59,7 +66,7 @@ namespace Helios.Core.Interfaces
         /// </summary>
         /// <param name="grid">Grid to find</param>
         /// <returns>NPC entity or null if not found</returns>
-        NpcEntity? GetNpc(IMyCubeGrid grid);
+        NpcEntity GetNpc(IMyCubeGrid grid);
 
         /// <summary>
         /// Spawn a new NPC at the specified location
@@ -75,7 +82,7 @@ namespace Helios.Core.Interfaces
         /// <param name="origin">Origin position</param>
         /// <param name="range">Search range</param>
         /// <returns>Nearest player entity or null</returns>
-        IMyEntity? FindNearestPlayer(Vector3D origin, double range);
+        IMyEntity FindNearestPlayer(Vector3D origin, double range);
 
         /// <summary>
         /// Find a suitable target for an NPC
@@ -85,7 +92,7 @@ namespace Helios.Core.Interfaces
         /// <param name="mood">NPC mood affecting targeting</param>
         /// <param name="ownFactionId">NPC's faction ID</param>
         /// <returns>Target entity or null</returns>
-        IMyEntity? FindTarget(Vector3D origin, double range, NpcEntity.AiMood mood, long ownFactionId = 0);
+        IMyEntity FindTarget(Vector3D origin, double range, NpcEntity.AiMood mood, long ownFactionId = 0);
 
         /// <summary>
         /// Assess the threat level of an entity
@@ -115,6 +122,13 @@ namespace Helios.Core.Interfaces
         /// <param name="mood">Mood to filter by</param>
         /// <returns>List of NPCs with the specified mood</returns>
         List<NpcEntity> GetNpcsByMood(NpcEntity.AiMood mood);
+        
+        /// <summary>
+        /// Sets the mood for a specific NPC
+        /// </summary>
+        /// <param name="npc">The NPC to update</param>
+        /// <param name="mood">The new mood</param>
+        void SetNpcMood(NpcEntity npc, NpcEntity.AiMood mood);
 
         /// <summary>
         /// Get NPCs with a specific behavior type
@@ -139,6 +153,36 @@ namespace Helios.Core.Interfaces
         /// </summary>
         /// <returns>NPC statistics</returns>
         NpcStatistics GetStatistics();
+
+        /// <summary>
+        /// Raised when an NPC is spawned.
+        /// </summary>
+        event Action<NpcEntity> NpcSpawned;
+
+        /// <summary>
+        /// Raised when an NPC is removed/unregistered.
+        /// </summary>
+        event Action<NpcEntity> NpcRemoved;
+
+        /// <summary>
+        /// Raised when an NPC's mood changes.
+        /// </summary>
+        event Action<NpcEntity, NpcEntity.AiMood> NpcMoodChanged;
+
+        /// <summary>
+        /// Raised when an NPC's behavior changes.
+        /// </summary>
+        event Action<NpcEntity, AiBehavior> NpcBehaviorChanged;
+
+        /// <summary>
+        /// Register an AI plugin for custom logic.
+        /// </summary>
+        void RegisterPlugin(IAiPlugin plugin);
+
+        /// <summary>
+        /// Asynchronously spawn a new NPC at the specified location.
+        /// </summary>
+        Task SpawnNpcAsync(Vector3D position, string prefab, NpcEntity.AiMood mood);
     }
 
     /// <summary>

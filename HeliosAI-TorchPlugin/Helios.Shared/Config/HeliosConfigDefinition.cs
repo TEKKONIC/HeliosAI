@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using HeliosAI.Models;
 using NLog;
+using VRageMath;
 
 namespace HeliosAI
 {
@@ -180,7 +181,7 @@ namespace HeliosAI
                 GlobalDetectionRange = 1500.0;
                 EnableVisualRadar = true;
                 DefaultFactionTag = "SPRT";
-                
+
                 PresetEncounters.Clear();
                 BehaviorSettings = new AiBehaviorSettings();
                 Performance = new PerformanceSettings();
@@ -233,13 +234,13 @@ namespace HeliosAI
         public List<string> Validate()
         {
             var errors = new List<string>();
-            
+
             if (AggressionLevel < 0.0 || AggressionLevel > 1.0)
                 errors.Add($"Aggression level must be between 0.0 and 1.0: {AggressionLevel}");
-            
+
             if (PatrolRadius <= 0)
                 errors.Add($"Patrol radius must be positive: {PatrolRadius}");
-            
+
             if (MaxTargets < 1)
                 errors.Add($"Max targets must be at least 1: {MaxTargets}");
 
@@ -272,13 +273,13 @@ namespace HeliosAI
         public List<string> Validate()
         {
             var errors = new List<string>();
-            
+
             if (UpdateFrequencyMs < 100)
                 errors.Add($"Update frequency too low: {UpdateFrequencyMs}ms");
-            
+
             if (MaxConcurrentOperations < 1)
                 errors.Add($"Max concurrent operations must be at least 1: {MaxConcurrentOperations}");
-            
+
             if (CullingDistance <= 0)
                 errors.Add($"Culling distance must be positive: {CullingDistance}");
 
@@ -295,5 +296,14 @@ namespace HeliosAI
                 CullingDistance = this.CullingDistance
             };
         }
+    }
+
+    [Serializable]
+    public class NpcState
+    {
+        public long GridEntityId { get; set; }
+        public string BehaviorType { get; set; }
+        public Vector3D Position { get; set; }
+        // Add more fields as needed (waypoints, mood, etc.)
     }
 }

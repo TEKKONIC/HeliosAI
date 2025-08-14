@@ -34,7 +34,7 @@ namespace Shared.Config
 
         ~PersistentConfig() => Dispose();
 
-        private PersistentConfig(string path, T data = null)
+        internal PersistentConfig(string path, T data = null)
         {
             Path = path;
             Data = data;

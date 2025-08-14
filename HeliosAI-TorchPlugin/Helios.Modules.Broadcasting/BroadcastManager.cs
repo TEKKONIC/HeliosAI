@@ -35,15 +35,14 @@ namespace Helios.Modules.AI
             try
             {
                 var pack = NationPhrasePackLoader.GetPhrasePack(npc.NationTag ?? "Generic");
-                var key = $"{npc.Id}_{trigger}";
-
-                if (!IsCooldownOver(key))
+                if (pack == null)
                 {
-                    Logger.Debug($"Broadcast blocked by cooldown for NPC {npc.Id}, trigger: {trigger}");
+                    Logger.Warn($"No phrase pack found for nation '{npc.NationTag ?? "Generic"}'");
                     return;
                 }
 
-                if (pack == null || !pack.Triggers.TryGetValue(trigger, out var phrases) || phrases.Count == 0)
+                var phrases = pack.GetPhrasesForTrigger(trigger);
+                if (phrases == null || phrases.Count == 0)
                 {
                     Logger.Warn($"No phrases found for trigger '{trigger}' in nation pack '{npc.NationTag ?? "Generic"}'");
                     return;
@@ -54,6 +53,8 @@ namespace Helios.Modules.AI
                 );
 
                 SendToPlayersNearby(((IMyEntity)npc.Grid).GetPosition(), message);
+                var key = $"{npc.Id}_{trigger}";
+
                 _cooldowns[key] = DateTime.UtcNow;
 
                 Logger.Info($"Broadcast sent from NPC {npc.Id} ({npc.NationTag}): {message}");
@@ -73,7 +74,7 @@ namespace Helios.Modules.AI
             return true;
         }
 
-        private void SendToPlayersNearby(Vector3D position, string message)
+        private static void SendToPlayersNearby(Vector3D position, string message)
         {
             if (string.IsNullOrEmpty(message))
             {
