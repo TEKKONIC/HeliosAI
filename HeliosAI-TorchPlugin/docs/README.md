@@ -1,9 +1,11 @@
 # HeliosAI - Next-Generation Space Engineers AI Framework
 
 [![Build Status](https://github.com/yourusername/HeliosAI/workflows/CI/badge.svg)](https://github.com/yourusername/HeliosAI/actions)
+[![License](https://img.shields.io/github/license/yourusername/HeliosAI.svg)] (
 [![Release](https://img.shields.io/github/release/yourusername/HeliosAI.svg)](https://github.com/yourusername/HeliosAI/releases)
 
-## 🚀 Superior to MES & AiEnabled
+
+## 🚀 Advanced AI for Space Engineers 
 
 HeliosAI is an enterprise-grade AI framework that **revolutionizes** Space Engineers automation:
 

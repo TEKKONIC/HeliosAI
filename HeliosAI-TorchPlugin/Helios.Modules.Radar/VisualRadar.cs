@@ -5,7 +5,7 @@ using VRage.ModAPI;
 
 namespace HeliosAI.Radar
 {
-    public static class VisualRadar
+    public class VisualRadar
     {
         private static readonly Logger Logger = LogManager.GetLogger("VisualRadar");
         private const int DefaultSegments = 64;

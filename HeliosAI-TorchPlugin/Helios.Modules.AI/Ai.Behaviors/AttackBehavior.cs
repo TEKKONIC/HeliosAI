@@ -8,6 +8,7 @@ using VRageRender;
 using System;
 using System.Linq;
 using Helios.Modules.AI;
+using Helios.Modules.API;
 using NLog;
 using Sandbox.ModAPI; 
 
@@ -187,7 +188,7 @@ namespace HeliosAI.Behaviors
         {
             try
             {
-                var wc = HeliosAIPlugin.WeaponCoreManager;
+                var wc = APIManager.WeaponCoreManager;
                 if (wc == null || Target == null || !wc.HasReadyWeapons(Grid))
                     return;
 

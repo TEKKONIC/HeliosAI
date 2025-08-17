@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Helios.Modules.API;
 using NLog;
 using VRageMath;
 
@@ -40,7 +41,7 @@ namespace HeliosAI.Nexus
         {
             try
             {
-                var nexusApi = HeliosAIPlugin.Instance?.NexusApi;
+                var nexusApi = APIManager.Nexus;
                 if (nexusApi == null)
                 {
                     Logger.Debug("Nexus API not available, returning default zone");
@@ -117,7 +118,7 @@ namespace HeliosAI.Nexus
         {
             try
             {
-                var nexusApi = HeliosAIPlugin.Instance?.NexusApi;
+                var nexusApi = APIManager.Nexus;
                 return nexusApi != null && nexusApi.Enabled;
             }
             catch (Exception ex)
@@ -131,7 +132,7 @@ namespace HeliosAI.Nexus
         {
             try
             {
-                var nexusApi = HeliosAIPlugin.Instance?.NexusApi;
+                var nexusApi = APIManager.Nexus;
                 if (nexusApi?.Sectors == null)
                     return Enumerable.Empty<string>();
 

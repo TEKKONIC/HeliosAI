@@ -8,7 +8,7 @@ using System;
 using Helios.Core;
 using Helios.Core.Interfaces;
 using HeliosAI;
-using Helios.Modules.AI.Behaviors; // Updated namespace
+using Helios.Modules.AI.Behaviors;
 using HeliosAI.Behaviors;
 using Sandbox.Definitions;
 using VRage;
@@ -21,6 +21,7 @@ using Helios.Modules.AI.Navigation;
 using VRageMath;
 using System.IO;
 using System.Xml.Serialization;
+using Helios.Modules.API;
 
 namespace Helios.Modules.AI
 {
@@ -41,8 +42,6 @@ namespace Helios.Modules.AI
         private List<NpcEntity> _npcs = new List<NpcEntity>();
         private List<IAiPlugin> _plugins = new List<IAiPlugin>();
         private bool _disposed = false;
-
-        // Events required by IAiManager interface
         public event Action<NpcEntity> NpcSpawned;
         public event Action<NpcEntity> NpcRemoved;
         public event Action<NpcEntity, NpcEntity.AiMood> NpcMoodChanged;
@@ -50,9 +49,8 @@ namespace Helios.Modules.AI
 
         private readonly HeliosAIConfig _config;
         private AdaptiveBehaviorEngine _behaviorEngine = new AdaptiveBehaviorEngine();
-        public PredictiveAnalyzer _predictiveAnalyzer = new PredictiveAnalyzer();
+        public readonly PredictiveAnalyzer _predictiveAnalyzer = new PredictiveAnalyzer();
         
-        // Add tracking dictionary for behavior updates since NpcEntity might not have LastBehaviorUpdate
         private Dictionary<long, DateTime> _lastBehaviorUpdates = new Dictionary<long, DateTime>();
 
         /// <summary>
@@ -62,11 +60,9 @@ namespace Helios.Modules.AI
         {
             _config = heliosConfig ?? new HeliosAIConfig();
             
-            // Validate configuration
-            if (_config.MaxSpeed <= 0) _config.MaxSpeed = 100f; // Default fallback
-            if (_config.ArriveDistance <= 0) _config.ArriveDistance = 50f; // Default fallback
+            if (_config.MaxSpeed <= 0) _config.MaxSpeed = 100f; 
+            if (_config.ArriveDistance <= 0) _config.ArriveDistance = 50f; 
             
-            // Listen for config changes
             _config.ConfigurationChanged += OnConfigurationChanged;
             
             Logger.Info("AiManager initialized with HeliosAI configuration and PredictiveAnalyzer");
@@ -90,7 +86,6 @@ namespace Helios.Modules.AI
         {
             try
             {
-                // Tick all plugins first
                 foreach (var plugin in _plugins.ToList())
                 {
                     try
@@ -118,21 +113,18 @@ namespace Helios.Modules.AI
                         var entityId = npc.Grid.EntityId;
                         var lastUpdate = _lastBehaviorUpdates.TryGetValue(entityId, out var updateTime) ? updateTime : DateTime.MinValue;
                         
-                        // Use adaptive behavior selection periodically
                         if (lastUpdate == DateTime.MinValue || 
                             DateTime.UtcNow.Subtract(lastUpdate).TotalSeconds > 30)
                         {
                             var context = BuildContextForNpc(npc);
                             var newBehavior = SelectOptimalBehavior(npc, context);
                             
-                            // Report outcome of previous behavior
                             if (npc.Behavior != null)
                             {
                                 var success = EvaluateBehaviorSuccess(npc);
                                 ReportBehaviorOutcome(npc, success, context);
                             }
                             
-                            // Set new behavior if different
                             if (newBehavior != null && newBehavior.GetType() != npc.Behavior?.GetType())
                             {
                                 SetBehavior(npc.Grid, newBehavior);
@@ -150,12 +142,10 @@ namespace Helios.Modules.AI
                     }
                 }
 
-                // Remove failed NPCs and fire events
                 foreach (var npc in npcsToRemove)
                 {
                     _npcs.Remove(npc);
                     
-                    // Clean up behavior update tracking
                     if (npc?.Grid != null)
                     {
                         _lastBehaviorUpdates.Remove(npc.Grid.EntityId);
@@ -181,13 +171,11 @@ namespace Helios.Modules.AI
         {
             try
             {
-                // Simple stability calculation based on velocity changes
                 var velocity = npc.Grid.Physics?.LinearVelocity ?? Vector3D.Zero;
                 var speed = velocity.Length();
                 
-                // More stable when moving at consistent speed
-                if (speed < 0.1) return 1.0f; // Stationary is stable
-                if (speed > 100) return 0.3f; // Very fast is unstable
+                if (speed < 0.1) return 1.0f; 
+                if (speed > 100) return 0.3f; 
                 
                 return Math.Max(0.1f, 1.0f - (float)(speed / 100.0)); // Normalize to 0.1-1.0 range
             }
@@ -199,7 +187,6 @@ namespace Helios.Modules.AI
 
         private bool EvaluateBehaviorSuccess(NpcEntity npc)
         {
-            // Enhanced success evaluation with predictive analysis
             try
             {
                 var baseSuccess = npc.Behavior switch
@@ -211,7 +198,6 @@ namespace Helios.Modules.AI
                     _ => false
                 };
 
-                // Use predictive analyzer to assess behavior effectiveness
                 try
                 {
                     var position = npc.Grid.PositionComp.GetPosition();
@@ -227,7 +213,6 @@ namespace Helios.Modules.AI
                         }
                     );
                     
-                    // Combine base success with predicted effectiveness
                     return baseSuccess && effectiveness > 0.5f;
                 }
                 catch (Exception ex)
@@ -249,10 +234,10 @@ namespace Helios.Modules.AI
                 var position = npc.Grid.PositionComp.GetPosition();
                 var target = FindTarget(position, 2000, npc.Mood, npc.Grid.BigOwners.FirstOrDefault());
                 
-                if (target == null) return false; // No target means attack failed
+                if (target == null) return false;
                 
                 var distanceToTarget = Vector3D.Distance(position, target.GetPosition());
-                return distanceToTarget < 1500; // Success if we're in engagement range
+                return distanceToTarget < 1500;
             }
             catch
             {
@@ -264,13 +249,12 @@ namespace Helios.Modules.AI
         {
             try
             {
-                // Simple patrol success - assume success if grid is moving or has moved recently
                 var velocity = npc.Grid.Physics?.LinearVelocity ?? Vector3D.Zero;
-                return velocity.Length() > 0.1; // Moving means patrolling
+                return velocity.Length() > 0.1; 
             }
             catch
             {
-                return true; // Default to success for patrol
+                return true; 
             }
         }
 
@@ -281,11 +265,11 @@ namespace Helios.Modules.AI
                 var position = npc.Grid.PositionComp.GetPosition();
                 var nearestThreat = FindTarget(position, 1000, npc.Mood, npc.Grid.BigOwners.FirstOrDefault());
                 
-                return nearestThreat == null; // Success if no immediate threats
+                return nearestThreat == null; 
             }
             catch
             {
-                return true; // Default to success for retreat
+                return true; 
             }
         }
 
@@ -304,7 +288,7 @@ namespace Helios.Modules.AI
             }
             catch
             {
-                return 1.0f; // Default to full health if calculation fails
+                return 1.0f; 
             }
         }
 
@@ -321,7 +305,7 @@ namespace Helios.Modules.AI
                     return;
                 }
 
-                if (_plugins.Count >= 20) // Use a hardcoded limit or add to HeliosAIConfig
+                if (_plugins.Count >= 20)
                 {
                     Logger.Warn($"Maximum plugin limit reached: 20");
                     return;
@@ -379,12 +363,10 @@ namespace Helios.Modules.AI
                         var npc = new NpcEntity(grid, mood) { SpawnedPrefab = prefab };
                         _npcs.Add(npc);
                         
-                        // Fire event
                         NpcSpawned?.Invoke(npc);
                         
                         Logger.Info($"Spawned NPC: {prefab} at {position} with mood {mood}");
                         
-                        // Initialize predictive analyzer with spawn data
                         try
                         {
                             _predictiveAnalyzer.RecordEvent(grid.EntityId, "Spawned", new Dictionary<string, object>
@@ -452,7 +434,6 @@ namespace Helios.Modules.AI
                         }
                         case MyCubeGrid grid:
                         {
-                            // Check if grid belongs to different faction
                             var gridOwner = grid.BigOwners.FirstOrDefault();
                             if (gridOwner != 0)
                             {
@@ -466,7 +447,6 @@ namespace Helios.Modules.AI
                     return false;
                 });
 
-                // Sort by threat score, descending (highest threat first)
                 return candidates
                     .OrderByDescending(e => AssessThreat(e, origin, ownFactionId))
                     .FirstOrDefault();
@@ -502,12 +482,10 @@ namespace Helios.Modules.AI
                     {
                         var weaponCount = 0;
 
-                        // Vanilla turrets - add null checks
                         weaponCount += grid.GetFatBlocks().Count(b => 
                             b?.DefinitionDisplayNameText?.Contains("Turret") == true);
 
-                        // WeaponCore/CoreSystems weapons using plugin API
-                        var wcapi = HeliosAIPlugin.WCAPI;
+                        var wcapi = APIManager.WeaponCore;
                         if (wcapi?.IsReady == true)
                         {
                             weaponCount += grid.GetFatBlocks().Count(b => 
@@ -533,12 +511,12 @@ namespace Helios.Modules.AI
         {
             try
             {
-                return _npcs.AsReadOnly(); // Convert to read-only list
+                return _npcs.AsReadOnly(); 
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, "Error getting all registered NPCs");
-                return new List<NpcEntity>().AsReadOnly(); // Return empty read-only list
+                return new List<NpcEntity>().AsReadOnly(); 
             }
         }
 
@@ -563,7 +541,6 @@ namespace Helios.Modules.AI
 
                     try
                     {
-                        // Example: Proximity warning
                         var player = FindNearestPlayer(position, 1500); // Within 1.5km
                         if (player != null && !npc.HasWarned)
                         {
@@ -579,7 +556,6 @@ namespace Helios.Modules.AI
                             npc.HasWarned = true;
                         }
 
-                        // Example: Engagement trigger
                         if (npc.Mood == NpcEntity.AiMood.Aggressive && !npc.EngagedRecently && player != null)
                         {
                             broadcastManager.Broadcast(
@@ -594,7 +570,6 @@ namespace Helios.Modules.AI
                             npc.EngagedRecently = true;
                         }
 
-                        // Example: Reinforcement call
                         if (npc.NeedsHelp && !npc.CalledReinforcements)
                         {
                             broadcastManager.Broadcast(
@@ -646,7 +621,6 @@ namespace Helios.Modules.AI
                 _npcs.Add(npc);
                 Logger.Info($"Registered grid: {grid.DisplayName}");
                 
-                // Record registration event for predictive analyzer
                 try
                 {
                     _predictiveAnalyzer.RecordEvent(grid.EntityId, "Registered", new Dictionary<string, object>
@@ -676,17 +650,12 @@ namespace Helios.Modules.AI
                 if (npc != null)
                 {
                     _npcs.Remove(npc);
-                    
-                    // Clean up behavior update tracking
                     _lastBehaviorUpdates.Remove(grid.EntityId);
-                    
-                    // Fire event
                     NpcRemoved?.Invoke(npc);
                     
                     npc.Dispose();
                     Logger.Info($"Unregistered grid: {grid?.DisplayName}");
                     
-                    // Record unregistration event for predictive analyzer
                     try
                     {
                         _predictiveAnalyzer.RecordEvent(grid.EntityId, "Unregistered", new Dictionary<string, object>
@@ -714,7 +683,7 @@ namespace Helios.Modules.AI
 
         public void TickAll()
         {
-            Update(); // Use the existing Update method
+            Update();
         }
 
         public AiBehavior GetBehavior(IMyCubeGrid grid)
@@ -738,13 +707,11 @@ namespace Helios.Modules.AI
                 var npc = _npcs.FirstOrDefault(n => n.Grid == grid);
                 if (npc != null)
                 {
-                    // Register the behavior with adaptive engine
                     _behaviorEngine.RegisterBehavior(behavior.GetType().Name);
                     
                     var oldBehavior = npc.Behavior;
                     npc.SetBehavior(behavior);
                     
-                    // Fire event if behavior actually changed
                     if (oldBehavior != behavior)
                     {
                         NpcBehaviorChanged?.Invoke(npc, behavior);
@@ -752,7 +719,6 @@ namespace Helios.Modules.AI
                     
                     Logger.Debug($"Set behavior for {grid?.DisplayName}: {behavior?.GetType().Name}");
                     
-                    // Record behavior change event for predictive analyzer
                     try
                     {
                         _predictiveAnalyzer.RecordEvent(grid.EntityId, "BehaviorChanged", new Dictionary<string, object>
@@ -780,7 +746,6 @@ namespace Helios.Modules.AI
             }
         }
         
-        // Enhanced method to use both adaptive behavior engine and predictive analyzer
         public AiBehavior SelectOptimalBehavior(NpcEntity npc, Dictionary<string, float> context)
         {
             try
@@ -793,7 +758,6 @@ namespace Helios.Modules.AI
                     "RetreatBehavior" 
                 };
                 
-                // Get predictive recommendations
                 try
                 {
                     var behaviorPredictions = _predictiveAnalyzer.PredictOptimalBehavior(
@@ -801,7 +765,6 @@ namespace Helios.Modules.AI
                         context.ToDictionary(k => k.Key, v => (object)v.Value)
                     );
                     
-                    // Weight behaviors based on predictions
                     foreach (var prediction in behaviorPredictions)
                     {
                         var predictionKey = $"Prediction_{prediction.Key}";
@@ -824,10 +787,8 @@ namespace Helios.Modules.AI
                     availableBehaviors
                 );
                 
-                // Get grid position using PositionComp
                 var gridPosition = npc.Grid.PositionComp.GetPosition();
                 
-                // Create behavior instance based on selection with required parameters
                 AiBehavior newBehavior = selected switch
                 {
                     "AttackBehavior" => new AttackBehavior(npc.Grid, FindTarget(gridPosition, 2000, npc.Mood, npc.Grid.BigOwners.FirstOrDefault())),
@@ -836,7 +797,6 @@ namespace Helios.Modules.AI
                     _ => new IdleBehavior(npc.Grid)
                 };
                 
-                // Record behavior selection for predictive analyzer
                 try
                 {
                     _predictiveAnalyzer.RecordEvent(npc.Grid.EntityId, "BehaviorSelected", new Dictionary<string, object>
@@ -885,7 +845,6 @@ namespace Helios.Modules.AI
                         context
                     );
                     
-                    // Also record outcome in predictive analyzer
                     try
                     {
                         _predictiveAnalyzer.RecordEvent(npc.Grid.EntityId, "BehaviorOutcome", new Dictionary<string, object>
@@ -932,7 +891,6 @@ namespace Helios.Modules.AI
                 {
                     _npcs.Remove(npc);
                     
-                    // Clean up behavior update tracking
                     if (npc?.Grid != null)
                     {
                         _lastBehaviorUpdates.Remove(npc.Grid.EntityId);
@@ -1021,13 +979,11 @@ namespace Helios.Modules.AI
                 stats.PassiveNpcs = _npcs.Count(n => n.Mood == NpcEntity.AiMood.Passive);
                 stats.GuardNpcs = _npcs.Count(n => n.Mood == NpcEntity.AiMood.Guard);
         
-                // Count by behavior types
                 stats.AttackingNpcs = _npcs.Count(n => n.Behavior is AttackBehavior);
                 stats.PatrollingNpcs = _npcs.Count(n => n.Behavior is PatrolBehavior);
                 stats.IdleNpcs = _npcs.Count(n => n.Behavior is IdleBehavior);
                 stats.RetratingNpcs = _npcs.Count(n => n.Behavior is RetreatBehavior);
         
-                // Calculate average health - FIXED VERSION
                 var totalHealth = 0f;
                 var healthCount = 0;
         
@@ -1088,7 +1044,6 @@ namespace Helios.Modules.AI
             }
         }
 
-        // Add method to set individual NPC mood with event firing and predictive tracking
         public void SetNpcMood(NpcEntity npc, NpcEntity.AiMood mood)
         {
             try
@@ -1098,12 +1053,10 @@ namespace Helios.Modules.AI
                     var oldMood = npc.Mood;
                     npc.Mood = mood;
                     
-                    // Fire event if mood actually changed
                     if (oldMood != mood)
                     {
                         NpcMoodChanged?.Invoke(npc, mood);
                         
-                        // Record mood change for predictive analyzer
                         try
                         {
                             _predictiveAnalyzer.RecordEvent(npc.Grid.EntityId, "MoodChanged", new Dictionary<string, object>
@@ -1130,7 +1083,6 @@ namespace Helios.Modules.AI
             }
         }
 
-        // Update NavigationService calls to use config values
         public void UpdateNavigation(NpcEntity npc, Vector3D targetPosition)
         {
             if (npc?.Grid == null) return;
@@ -1144,7 +1096,6 @@ namespace Helios.Modules.AI
                     _config.ArriveDistance
                 );
                 
-                // Record navigation event for predictive analyzer
                 try
                 {
                     _predictiveAnalyzer.RecordEvent(npc.Grid.EntityId, "NavigationUpdate", new Dictionary<string, object>
@@ -1180,13 +1131,11 @@ namespace Helios.Modules.AI
             {
                 Logger.Info("Disposing AiManager...");
 
-                // Unsubscribe from config changes
                 if (_config != null)
                 {
                     _config.ConfigurationChanged -= OnConfigurationChanged;
                 }
 
-                // Dispose all NPCs
                 foreach (var npc in _npcs.ToList())
                 {
                     try
@@ -1199,7 +1148,6 @@ namespace Helios.Modules.AI
                     }
                 }
 
-                // Dispose all plugins
                 foreach (var plugin in _plugins.ToList())
                 {
                     try
@@ -1212,7 +1160,6 @@ namespace Helios.Modules.AI
                     }
                 }
 
-                // Dispose predictive analyzer
                 try
                 {
                     _predictiveAnalyzer?.Dispose();
@@ -1222,12 +1169,10 @@ namespace Helios.Modules.AI
                     Logger.Error(ex, "Error disposing predictive analyzer");
                 }
 
-                // Clear collections
                 _npcs.Clear();
                 _plugins.Clear();
                 _lastBehaviorUpdates.Clear();
 
-                // Clear events
                 NpcSpawned = null;
                 NpcRemoved = null;
                 NpcMoodChanged = null;
@@ -1264,7 +1209,6 @@ namespace Helios.Modules.AI
                 return;
             }
 
-            // Use the founder or any member as the owner
             var npcOwnerId = faction.FounderId;
             if (npcOwnerId == 0 && faction.Members.Count > 0)
                 npcOwnerId = faction.Members.Keys.First();
@@ -1286,7 +1230,6 @@ namespace Helios.Modules.AI
             Logger.Info($"Changed ownership of grid '{grid.DisplayName}' to faction '{factionTag}' (ownerId: {npcOwnerId})");
         }
 
-        // Save all NPC states to disk
         public void SaveNpcStates(string path)
         {
             try
@@ -1296,7 +1239,7 @@ namespace Helios.Modules.AI
                     GridEntityId = npc.Grid.EntityId,
                     BehaviorType = npc.Behavior?.GetType().Name,
                     Position = npc.Grid.GetPosition()
-                    // Add more fields as needed
+                    // Add more fields as needed or wanted
                 }).ToList();
 
                 using (var stream = File.Create(path))
@@ -1312,7 +1255,6 @@ namespace Helios.Modules.AI
             }
         }
 
-        // Load NPC states from disk
         public void LoadNpcStates(string path)
         {
             try
@@ -1323,21 +1265,19 @@ namespace Helios.Modules.AI
                     return;
                 }
 
-                using (var stream = File.OpenRead(path))
-                {
-                    var serializer = new XmlSerializer(typeof(List<NpcState>));
-                    var states = (List<NpcState>)serializer.Deserialize(stream);
+                using var stream = File.OpenRead(path);
+                var serializer = new XmlSerializer(typeof(List<NpcState>));
+                var states = (List<NpcState>)serializer.Deserialize(stream);
 
-                    Logger.Info($"Loading {states.Count} saved NPC states...");
-                    foreach (var state in states)
+                Logger.Info($"Loading {states.Count} saved NPC states...");
+                foreach (var state in states)
+                {
+                    var grid = MyAPIGateway.Entities.GetEntityById(state.GridEntityId) as IMyCubeGrid;
+                    if (grid != null)
                     {
-                        var grid = MyAPIGateway.Entities.GetEntityById(state.GridEntityId) as IMyCubeGrid;
-                        if (grid != null)
-                        {
-                            var behavior = CreateBehaviorForGrid(grid, state.BehaviorType?.ToLower() ?? "idle");
-                            RegisterGrid(grid, behavior);
-                            // Optionally restore position, waypoints, etc.
-                        }
+                        var behavior = CreateBehaviorForGrid(grid, state.BehaviorType?.ToLower() ?? "idle");
+                        RegisterGrid(grid, behavior);
+                        // Optionally restore position, waypoints, etc.
                     }
                 }
             }
@@ -1347,7 +1287,6 @@ namespace Helios.Modules.AI
             }
         }
 
-        // Helper to create behavior from string
         private AiBehavior CreateBehaviorForGrid(IMyCubeGrid grid, string behaviorType)
         {
             switch (behaviorType)
@@ -1377,6 +1316,15 @@ namespace Helios.Modules.AI
             var availableBehaviors = new List<string> { "AttackBehavior", "PatrolBehavior", "IdleBehavior", "RetreatBehavior" };
             var bestBehaviorId = AdaptiveBehaviorEngine.SelectOptimalBehavior(grid.EntityId, context, availableBehaviors);
             return bestBehaviorId?.Replace("Behavior", "").ToLower() ?? "idle";
+        }
+
+        public void RegisterNpc(NpcEntity npc) {
+            if (npc == null) return;
+            if (!_npcs.Contains(npc)) {
+                _npcs.Add(npc);
+                NpcSpawned?.Invoke(npc);
+                Logger.Info($"Registered NPC entity: {npc.Grid?.DisplayName}");
+            }
         }
     }
 }

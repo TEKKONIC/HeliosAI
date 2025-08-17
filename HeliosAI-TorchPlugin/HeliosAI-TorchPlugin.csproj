@@ -632,9 +632,12 @@
     <Compile Include="Helios.Modules.AI\Ai.Control\NpcEntity.cs" />
     <Compile Include="Helios.Modules.AI\Ai.Control\PredictiveAnalyzer.cs" />
     <Compile Include="Helios.Modules.AI\AI.Navigation\Navigation.cs" />
+    <Compile Include="Helios.Modules.API\API.Core.cs" />
     <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiBase.cs" />
+    <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiBlocks.cs" />
     <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiDefs.cs" />
     <Compile Include="Helios.Modules.API\CoreSystems\CoreSystemsApiPhantoms.cs" />
+    <Compile Include="Helios.Modules.API\HeliosAPI.cs" />
     <Compile Include="Helios.Modules.API\NexusAPI\NexusAPI.cs" />
     <Compile Include="Helios.Core\HeliosContext.cs" />
     <Compile Include="Helios.Core\Interfaces\IBehavior.cs" />
@@ -650,6 +653,7 @@
     <Compile Include="Helios.Modules.AI\Ai.Behaviors\IdleBehaviors.cs" />
     <Compile Include="Helios.Modules.AI\Ai.Behaviors\PatrolBehavior.cs" />
     <Compile Include="Helios.Modules.AI\Ai.Behaviors\RetreatBehavior.cs" />
+    <Compile Include="Helios.Modules.API\ShieldSystemAPI\Shield.api.cs" />
     <Compile Include="Helios.Modules.Broadcasting\BroadcastManager.cs" />
     <Compile Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\NationPhrasePack.cs" />
     <Compile Include="Helios.Modules.Broadcasting\ChatModule\PhrasePacks\NationPhrasePackLoader.cs" />

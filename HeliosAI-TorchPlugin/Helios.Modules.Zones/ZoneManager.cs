@@ -6,6 +6,7 @@ using Helios.Core.Interfaces;
 using Helios.Modules.Encounters;
 using Helios.Modules.AI.Behaviors;
 using Helios.Modules.AI.Combat;
+using Helios.Modules.API;
 using NLog;
 using Torch.API;
 using VRage.Utils;
@@ -293,6 +294,16 @@ namespace HeliosAI.NPCZones
             if (!NexusIntegration.IsAvailable) return false;
             return NexusIntegration.CurrentSectorMatches(zone.NexusSectors);
         }
+
+        public ZoneProfile GetZoneForPosition(Vector3D position) {
+    // Implement your logic here to return the correct Zone for the given position
+    // Example:
+    foreach (var zone in Zones) {
+        if (zone.Contains(position))
+            return zone;
+    }
+    return null;
+}
     }
     
     public class ZoneProfile
@@ -333,13 +344,18 @@ namespace HeliosAI.NPCZones
         {
             _lastSpawn = DateTime.UtcNow;
         }
+
+        public bool Contains(Vector3D position)
+        {
+            // Check if the position is within the radius of the zone
+            return Vector3D.Distance(position, Center) <= Radius;
+        }
     }
     
     public static class NexusIntegration
     {
-        public static bool IsAvailable => HeliosAIPlugin.Instance?.NexusApi?.Enabled == true;
-
-        public static string CurrentSector => HeliosAIPlugin.Instance?.NexusApi?.CurrentServerID.ToString() ?? "Unknown";
+        public static bool IsAvailable => APIManager.Nexus?.Enabled == true;
+        public static string CurrentSector => APIManager.Nexus?.CurrentServerID.ToString() ?? "Unknown";
 
         public static bool CurrentSectorMatches(List<string> sectors)
         {

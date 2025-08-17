@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Helios.Modules.AI.Behaviors;
 using Helios.Modules.AICommunication;
-using Helios.Modules.AI.Combat; // Add for PredictiveAnalyzer
+using Helios.Modules.AI.Combat;
+using Helios.Modules.API; // Add for PredictiveAnalyzer
 using HeliosAI;
 using VRage.Game.ModAPI;
 using HeliosAI.Behaviors;
@@ -503,7 +504,7 @@ namespace Helios.Modules.AI
         {
             try
             {
-                var wc = HeliosAIPlugin.WeaponCoreManager;
+                var wc = APIManager.WeaponCoreManager;
                 if (wc != null)
                 {
                     wc.RegisterWeapons(Grid);

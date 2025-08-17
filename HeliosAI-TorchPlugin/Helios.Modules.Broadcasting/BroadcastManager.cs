@@ -171,5 +171,13 @@ namespace Helios.Modules.AI
         {
             return _cooldowns.Count;
         }
+
+        public void SendGlobal(string message) {
+            var players = new List<IMyPlayer>();
+            MyAPIGateway.Players.GetPlayers(players);
+            foreach (var player in players) {
+                MyAPIGateway.Utilities.ShowMessage("Helios", message);
+            }
+        }
     }
 }

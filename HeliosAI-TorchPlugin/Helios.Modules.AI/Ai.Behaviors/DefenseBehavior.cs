@@ -4,6 +4,7 @@ using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 using VRageMath;
 using System;
+using Helios.Modules.API;
 using NLog;
 using VRage.ModAPI;
 
@@ -326,7 +327,7 @@ namespace HeliosAI.Behaviors
         {
             try
             {
-                var wc = HeliosAIPlugin.WeaponCoreManager;
+                var wc = APIManager.WeaponCoreManager;
                 if (wc != null)
                 {
                     wc.RegisterWeapons(Grid);

@@ -29,22 +29,16 @@ using Torch.API.Session;
 using Torch.Session;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Utils;
-using NexusModAPI;
-using NLog;
-using Sandbox.ModAPI;
+using Helios.Modules.API; // <-- Add this for APIManager
 using ICustomGridManager = Helios.Core.Interfaces.ICustomGridManager;
 
 namespace HeliosAI
 {
     public class HeliosAIPlugin : TorchPluginBase, IWpfPlugin, ICommonPlugin
     {
-        private static readonly Logger Logger = LogManager.GetLogger("HeliosAI");
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetLogger("HeliosAI");
         public const string PluginName = "HeliosAi";
         public static HeliosAIPlugin Instance { get; private set; }
-        public NexusAPI NexusApi { get; private set; }
-        public static bool NexusInstalled { get; private set; }
-        public static WeaponCoreAdvancedAPI WCAPI { get; private set; } = new WeaponCoreAdvancedAPI();
-        public static WeaponCoreGridManager WeaponCoreManager { get; private set; }
         public AiCommunicationManager CommunicationManager { get; private set; }
         public static EncounterManager EncounterMgr { get; private set; }
         public static List<NpcEntity> AiEntities { get; set; } = new();
@@ -244,9 +238,9 @@ namespace HeliosAI
                 switch (newState)
                 {
                     case TorchSessionState.Loaded:
-                        Logger.Debug("Session loaded - initializing APIs...");
-                        InitializeWeaponCoreAPI();
-                        InitializeNexusAPI();
+                        Logger.Debug("Session loaded - initializing external APIs...");
+                        APIManager.RegisterAPIs(0); // Nexus, etc.
+                        APIManager.RegisterAPIs(2); // WeaponCore, Shields, etc.
                         break;
 
                     case TorchSessionState.Loading:
@@ -269,73 +263,6 @@ namespace HeliosAI
             }
         }
 
-        private void InitializeWeaponCoreAPI()
-        {
-            try
-            {
-                if (WCAPI == null)
-                {
-                    Logger.Debug("WCAPI is null - skipping WeaponCore integration");
-                    return;
-                }
-
-                var wcMod = MyAPIGateway.Session?.Mods?.FirstOrDefault(m => 
-                    m.PublishedFileId == 1918681825 || 
-                    m.Name.Contains("WeaponCore"));
-
-                if (wcMod == null)
-                {
-                    Logger.Info("WeaponCore mod not found - skipping WeaponCore integration");
-                    return;
-                }
-
-                Logger.Info("WeaponCore mod detected, attempting to load API...");
-                WCAPI.LoadWeaponCoreAPI();
-
-                if (WCAPI.IsReady)
-                {
-                    WeaponCoreManager = new WeaponCoreGridManager(WCAPI);
-                    Logger.Info("WeaponCore API loaded successfully");
-                }
-                else
-                {
-                    Logger.Warn("WeaponCore API failed to initialize properly");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to load WeaponCore API - WeaponCore integration will be disabled");
-                WCAPI = null;
-            }
-        }
-
-        private void InitializeNexusAPI()
-        {
-            try
-            {
-                if (NexusApi != null)
-                {
-                    Logger.Debug("NexusAPI already initialized");
-                    return;
-                }
-
-                NexusApi = new NexusAPI(OnNexusEnabled);
-                NexusInstalled = true;
-                Logger.Info("NexusAPI initialized successfully");
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "Failed to initialize NexusAPI - Nexus integration will be disabled");
-                NexusApi = null;
-                NexusInstalled = false;
-            }
-        }
-
-        private static void OnNexusEnabled()
-        {
-            Logger.Info("Nexus API enabled! Clusters and servers are now available.");
-        }
-
         public override void Dispose()
         {
             try
@@ -351,6 +278,7 @@ namespace HeliosAI
                     }
                     
                     AiManager.Instance.SaveNpcStates(NpcStateFile);
+                    SaveNpcStates();
                     CleanupResources();
                     _aiUpdateTimer?.Dispose();
 
@@ -417,9 +345,7 @@ namespace HeliosAI
             try
             {
                 CommunicationManager?.Dispose();
-                WeaponCoreManager = null;
-                WCAPI = null;
-                NexusApi = null;
+                // No need to null WeaponCoreManager, WCAPI, NexusApi here; handled by APIManager
                 Logger.Debug("Resources cleaned up successfully");
             }
             catch (Exception ex)
@@ -468,9 +394,9 @@ namespace HeliosAI
 
         private void UpdateWeaponCoreIntegration()
         {
-            if (WCAPI?.IsReady == true && WeaponCoreManager != null)
+            if (APIManager.WeaponCoreApiLoaded && APIManager.WeaponCoreManager != null)
             {
-                // WeaponCore-specific logic can be added here - if you so please
+                // WeaponCore-specific logic can be added here
             }
         }
 
@@ -547,4 +473,4 @@ namespace HeliosAI
             SaveNpcStates();
         }
     }
-} 
+}

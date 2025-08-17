@@ -2,6 +2,7 @@ using VRage.Game.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Helios.Modules.API;
 using NLog;
 using Sandbox.ModAPI;
 using VRageMath;
@@ -199,7 +200,7 @@ namespace HeliosAI.Behaviors
         {
             try
             {
-                var wc = HeliosAIPlugin.WeaponCoreManager;
+                var wc = APIManager.WeaponCoreManager;
                 if (wc != null)
                 {
                     wc.RegisterWeapons(Grid);
@@ -375,7 +376,7 @@ namespace HeliosAI.Behaviors
         {
             try
             {
-                var wc = HeliosAIPlugin.WeaponCoreManager;
+                var wc = APIManager.WeaponCoreManager;
                 if (wc != null)
                 {
                     wc.RegisterWeapons(Grid);
